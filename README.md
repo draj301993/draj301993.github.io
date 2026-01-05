@@ -146,7 +146,7 @@ async function querySalesforceAccount() {
       var header = document.getElementById('chat-header');
       var card = document.getElementById('chat-widget');
   const endpoint = 'https://bayeragmiidas--test.sandbox.my.salesforce.com/services/apexrest/CycleExample';
-  console.log('2');
+  console.log('2new');
   try {
     const response = await fetch(endpoint, {
       method: 'GET',
