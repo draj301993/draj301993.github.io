@@ -157,7 +157,7 @@ async function querySalesforceAccount() {
     });
     console.log('3');
     if (!response.ok) {
-      throw new Error('HTTP errorrrrrrr! status:');
+      
     }
     
     const data = await response.json();
