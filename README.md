@@ -110,6 +110,8 @@
     }
 
     // Function to query Salesforce API with access token
+    
+    console.log('3');
     async function querySalesforceAccount() {
       const refreshToken = '5Aep861pw2VNBY3IWYyH3ybCjG64bbZTO4o9DUVi3s6VCellJnFOOOsQ8nhAh5V1NXBEAmkfpu_ncGXHPjU_JYd';  // Replace with your actual refresh token
       let accessToken = '00D9O000005Id3K!AQEAQBt3Vk7uzx3b3q7DZPtwLMhhT3cPGwDQ..6zBkan9zqHzLYOotWoFHYq9APpco5Vmy43CDo3xvVYlRbN4pYrUgZ.xD6o';  // Replace with your current access token
@@ -121,11 +123,14 @@
         }
 
         const endpoint = 'https://bayeragmiidas--test.sandbox.my.salesforce.com/services/apexrest/CycleExample';
+          console.log('1');
         const response = await fetch(endpoint, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
+            
+            console.log('2');
           }
         });
 
