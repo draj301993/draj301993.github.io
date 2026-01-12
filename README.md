@@ -115,13 +115,14 @@
     async function querySalesforceAccount() {
       const refreshToken = '5Aep861pw2VNBY3IWYyH3ybCjG64bbZTO4o9DUVi3s6VCellJnFOOOsQ8nhAh5V1NXBEAmkfpu_ncGXHPjU_JYd';  // Replace with your actual refresh token
       let accessToken = '00D9O000005Id3K!AQEAQBt3Vk7uzx3b3q7DZPtwLMhhT3cPGwDQ..6zBkan9zqHzLYOotWoFHYq9APpco5Vmy43CDo3xvVYlRbN4pYrUgZ.xD6o';  // Replace with your current access token
-
+    console.log('log accessToken123'+isTokenExpired);
       try {
         // If the access token is expired, refresh it
         if (isTokenExpired(accessToken)) {
+            console.log('log accessToken12'+isTokenExpired);
           accessToken = await refreshAccessToken(refreshToken);
         }
-
+        console.log('log accessToken'+accessToken);
         const endpoint = 'https://bayeragmiidas--test.sandbox.my.salesforce.com/services/apexrest/CycleExample';
           console.log('1');
         const response = await fetch(endpoint, {
