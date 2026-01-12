@@ -114,9 +114,10 @@
       try {
         // If the access token is expired, refresh it
         if (isTokenExpired(accessToken)) {
+        console.log('log1'+isTokenExpired);
           accessToken = await refreshAccessToken(refreshToken);
         }
-
+       console.log('log2'+accessToken);
         const endpoint = 'https://bayeragmiidas--test.sandbox.my.salesforce.com/services/apexrest/CycleExample';
         const response = await fetch(endpoint, {
           method: 'GET',
@@ -139,7 +140,7 @@
           } else if (response.status === 500) {
             document.getElementById('availabilityMessage').innerText = 'Server Error: Please try again later.';
           } else {
-            document.getElementById('availabilityMessage').innerText = 'Error querying Salesforce: ' + response.statusText;
+           // document.getElementById('availabilityMessage').innerText = 'Error querying Salesforce: ' + response.statusText;
           }
           return;
         }
