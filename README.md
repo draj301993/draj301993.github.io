@@ -130,7 +130,6 @@
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
             
-            console.log('2');
           }
         });
 
