@@ -126,24 +126,34 @@
           }
         });
 
+        const responseText = await response.text();  // Use text() to avoid JSON parsing issues
+        console.log('Response:', responseText);  // Log the raw response
+
         if (!response.ok) {
-          throw new Error('Error querying Salesforce');
+          throw new Error('Error querying Salesforce: ' + response.statusText);
         }
 
-        const data = await response.json();
-        console.log('Query Result:', data);
+        if (responseText) {
+          try {
+            const data = JSON.parse(responseText);  // Now parse the response
+            console.log('Query Result:', data);
 
-        // Handle the response
-        if (data) {
-          const obj = JSON.parse(data);
-          window.isWithinBH = obj.isWithinBH;
-          window.availability = obj.Availability;
-          window.numberOfAgents = obj.numberofAgent;
+            // Handle the response
+            if (data) {
+              const obj = data;  // Parse JSON response
+              window.isWithinBH = obj.isWithinBH;
+              window.availability = obj.Availability;
+              window.numberOfAgents = obj.numberofAgent;
 
-          if (window.numberOfAgents > 0 && window.isWithinBH) {
-            document.getElementById('launchChatBtn').style.display = 'block';
-          } else {
-            document.getElementById('launchChatBtn').style.display = 'none';
+              if (window.numberOfAgents > 0 && window.isWithinBH) {
+                document.getElementById('launchChatBtn').style.display = 'block';
+              } else {
+                document.getElementById('launchChatBtn').style.display = 'none';
+              }
+            }
+          } catch (e) {
+            console.error('Error parsing JSON:', e);
+            document.getElementById('availabilityMessage').innerText = 'Error: Invalid response from Salesforce.';
           }
         }
       } catch (error) {
