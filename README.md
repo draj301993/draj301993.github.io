@@ -130,7 +130,18 @@
         console.log('Response:', responseText);  // Log the raw response
 
         if (!response.ok) {
-          throw new Error('Error querying Salesforce: ' + response.statusText);
+          // Log the error and handle different status codes
+          console.error('Error response:', response.status, response.statusText);
+          if (response.status === 401) {
+            document.getElementById('availabilityMessage').innerText = 'Unauthorized: Invalid token or session expired.';
+          } else if (response.status === 403) {
+            document.getElementById('availabilityMessage').innerText = 'Forbidden: Insufficient permissions.';
+          } else if (response.status === 500) {
+            document.getElementById('availabilityMessage').innerText = 'Server Error: Please try again later.';
+          } else {
+            document.getElementById('availabilityMessage').innerText = 'Error querying Salesforce: ' + response.statusText;
+          }
+          return;
         }
 
         if (responseText) {
