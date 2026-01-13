@@ -1,6 +1,6 @@
-<apex:page controller="ChatFlowController">
+<apex:page controller="ChatFlowController" > 
+
   <style>
-    /* Your existing styles */
     #chat-widget {
       position: fixed;
       bottom: 20px;
@@ -24,40 +24,79 @@
       text-align: center;
     }
 
-    #launchChatBtn {
+    .chat-header.offline {
       display: none;
-      position: fixed;
-      bottom: 100px;
-      right: 20px;
-      padding: 12px 24px;
-      background: rgb(137, 211, 41);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-      z-index: 9998;
-    }
-
-    #launchChatBtn:hover {
-      background: rgb(120, 190, 35);
     }
 
     #availabilityMessage {
-      padding: 18px;
-      text-align: center;
-      color: #333;
+      padding: 14px;
       font-size: 14px;
+      line-height: 1.6;
+      text-align: left;
+      background: #fff;
+      border-radius: 0 0 16px 16px;
+      color: #222;
     }
 
-    .error-message {
-      color: #d32f2f;
+    .offline-label {
+      display: inline-block;
+      background: rgb(137, 211, 41);
+      color: white;
+      padding: 10px 16px;
+      font-weight: bold;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      text-align: center;
+      width: 100%;
     }
 
-    .success-message {
-      color: #388e3c;
+    .chat-hours {
+      font-weight: bold;
+      color: #000;
+      display: block;
+      margin: 6px 0 10px 0;
+    }
+
+    .submit-link-btn {
+      display: inline-block;
+      background: rgb(137, 211, 41);
+      color: white !important;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 10px;
+      margin-top: 10px;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .submit-link-btn:hover {
+      background: rgb(110, 175, 33);
+    }
+
+    #launchChatBtn {
+      background: rgb(137, 211, 41);
+      color: white;
+      border: none;
+      padding: 14px 22px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      display: none;
+      width: auto;
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    #launchChatBtn:hover {
+      background: rgb(110, 175, 33);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.3);
     }
   </style>
 
@@ -71,191 +110,167 @@
   </button>
 
   <div id="embedded-messaging-root"></div>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script type="text/javascript">
-    (function() {
-      'use strict';
+    function initEmbeddedMessaging() {
+      try {
+        embeddedservice_bootstrap.settings.language = 'en_US';
+        embeddedservice_bootstrap.init(
+          '00D9O000005Id3K',
+          'MIDAS_US_CHAT_WEB',
+          'https://bayeragmiidas--test.sandbox.my.site.com/ESWMIDASUSCHATWEB1736761433673',
+          { scrt2URL: 'https://bayeragmiidas--test.sandbox.my.salesforce-scrt.com' }
+        );
+      } catch (err) {
+        console.error('Error loading Embedded Messaging: ', err);
+      }
+    }
+  </script>
 
-      // IMPORTANT: These credentials should NOT be in client-side code
-      // They should be handled by your Apex controller instead
-      // This is a security risk - move OAuth logic to server-side
+  <script type="text/javascript" 
+    src="https://bayeragmiidas--test.sandbox.my.site.com/ESWMIDASUSCHATWEB1736761433673/assets/js/bootstrap.min.js" 
+    onload="initEmbeddedMessaging()">
+  </script>
+
+  <script>
+     window.isWithinBH=null;  
+    
+    window.availability=null;
+        window.numberOfAgents=null;
+
+   //New Script Change start
+console.log('1');
+async function querySalesforceAccount() {
+    var msg = document.getElementById('availabilityMessage');
+      var btn = document.getElementById('launchChatBtn');
+      var header = document.getElementById('chat-header');
+      var card = document.getElementById('chat-widget');
+  const endpoint = 'https://bayeragmiidas--test.sandbox.my.salesforce.com/services/apexrest/CycleExample';
+  console.log('2');
+  try {
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer 00D9O000005Id3K!AQEAQN_tXshfazQoXXl5pUxggYqVwiO54mcR35soREHrOdUoV1TGtxYP7mKfyEFmXcP4wBDgEvF8KwtyQDjPlLcjjp4ad4rO',
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log('3');
+    if (!response.ok) {
+      throw new Error('HTTP errorrrrrrr! status:');
+    }
+    
+    const data = await response.json();
+   console.log('Query Result:', data);
+   if(data!=null){
+       console.log('Chgandan');
+     const obj = JSON.parse(data);
+     window.isWithinBH = obj.isWithinBH;  // true
+    console.log('isWithinBH:', window.isWithinBH); // true
+    
+    // Other values
+    window.availability = obj.Availability;// "No Agents are Available!Please try again later"
+     console.log('avalailability:', window.availability);
+    window.numberOfAgents = obj.numberofAgent; //
+          console.log('numberOfAgents:', window.numberOfAgents);
+     console.log(typeof numberOfAgents); 
+
+// Main Code Start
+
+
+              if (window.numberOfAgents> 0 && window.isWithinBH) {
+                header.style.display = "none";
+                card.style.display = "none"; 
+                msg.innerText = "";
+                msg.classList.remove("offline");
+                btn.style.display = 'block';
+              } else {
+                card.style.display = "block";
+                header.classList.add("offline");
+
+                if (!isWithinBH) {
+                  msg.innerHTML = "<span class='offline-label'>🕒 Outside Business Hours</span>" +
+                                  "<div>Hello, our specialists are not available at the moment.<br/>" +
+                                  "Our live chat and phone hours are:<br/>" +
+                                  "<span class='chat-hours'>Monday - Friday<br/>8:30AM - 8:00PM EST</span>" +
+                                  "If you would like, you may submit your question and one of our specialists will follow up with you:<br/>" +
+                                  "<a class='submit-link-btn' href='https://askmed.bayer.com/submit-question?utm_source=LiveChat&utm_medium=Website&utm_campaign=LiveChat' target='_blank'>Submit Question</a></div>";
+                } else {
+                  msg.innerHTML = "<span class='offline-label'>💬 Agents are Offline</span>" +
+                                  "<div>I'm sorry, it looks like all agents are unavailable at this time.<br/><br/>" +
+                                  "Please try again later or submit your question and one of our specialists will follow up with you:<br/>" +
+                                  "<a class='submit-link-btn' href='https://askmed.bayer.com/submit-question?utm_source=LiveChat&utm_medium=Website&utm_campaign=LiveChat' target='_blank'>Submit Question</a></div>";
+                }
+
+                msg.classList.add("offline");
+                btn.style.display = 'none';
+              }
+
+
+     // Main code End
+
+
+
+
+
+
+
+
+     
+
+   }
+    return data;
+  } catch (error) {
+    console.error('Error querying Salesforce:', error);
+    header.innerText = "⚠️ Error";
+              msg.innerText = 'There was a problem running the availability check.';
+              msg.classList.remove("offline");
+              btn.style.display = 'none';
+  }
+}
+
+// Usage
+      querySalesforceAccount();
+
+
+
+    // new Script Change End  
+
+
+
+
       
-      const SALESFORCE_CONFIG = {
-        instanceUrl: 'https://bayeragmiidas--test.sandbox.my.salesforce.com',
-        apiEndpoint: '/services/apexrest/CycleExample'
-      };
 
-      // Global state
-      let authState = {
-        accessToken: null,
-        refreshToken: null,
-        tokenExpiry: null
-      };
+  
+    window.addEventListener('onEmbeddedMessagingReady', function () {
+      embeddedservice_bootstrap.settings.hideChatButtonOnLoad = true;
 
-      // Initialize stored tokens (in production, use secure storage)
-      function initializeAuth() {
-        // In a real implementation, these would come from secure server-side session
-        authState.accessToken = '00D9O000005Id3K!AQEAQBt3Vk7uzx3b3q7DZPtwLMhhT3cPGwDQ..6zBkan9zqHzLYOotWoFHYq9APpco5Vmy43CDo3xvVYlRbN4pYrUgZ.xD6o';
-        authState.refreshToken = '5Aep861pw2VNBY3IWYyH3ybCjG64bbZTO4o9DUVi3s6VCellJnFOOOsQ8nhAh5V1NXBEAmkfpu_ncGXHPjU_JYd';
-      }
+      var msg = document.getElementById('availabilityMessage');
+      var btn = document.getElementById('launchChatBtn');
+      var header = document.getElementById('chat-header');
+      var card = document.getElementById('chat-widget');
 
-      // Function to check if token is expired
-      function isTokenExpired(accessToken) {
-        if (!accessToken) return true;
-        
-        // Salesforce session tokens don't always follow JWT format
-        // Check if token has JWT format (3 parts separated by dots)
-        const parts = accessToken.split('.');
-        if (parts.length === 3) {
-          try {
-            const payload = JSON.parse(atob(parts[1]));
-            const expirationTime = payload.exp * 1000;
-            return Date.now() > expirationTime;
-          } catch (e) {
-            console.warn('Could not parse token as JWT:', e);
-            // If we can't parse it, assume it might be expired and try to use it anyway
-            return false;
-          }
+
+
+    
+
+      document.addEventListener('launchMIAWChatEvent', function () {
+                embeddedservice_bootstrap.utilAPI.launchChat()
+                  .then(function () { if (card) card.classList.add('hidden'); })
+                  .catch(function (error) { if (msg) msg.innerText = 'Could not launch chat.'; });
+         
+         
+      });
+
+      /**
+       * Salesforce-provided event: Fires when chat window is minimized
+       */
+      window.addEventListener("onEmbeddedMessagingWindowMinimized", function() {
+        var btn = document.getElementById("launchChatBtn");
+        if (btn) {
+          btn.style.display = "none"; // Hide custom button when chat is minimized
         }
-        
-        // For non-JWT tokens, we'll try to use them and handle 401 errors
-        return false;
-      }
-
-      // Refresh token function
-      async function refreshAccessToken() {
-        // SECURITY WARNING: This should be done server-side via Apex controller
-        // For now, commenting out as it exposes client secret
-        console.warn('Token refresh should be handled server-side');
-        throw new Error('Token refresh must be implemented server-side in Apex controller');
-      }
-
-      // Main function to query Salesforce
-      async function querySalesforceAccount() {
-        const availabilityMsg = document.getElementById('availabilityMessage');
-        const chatHeader = document.getElementById('chat-header');
-        const launchBtn = document.getElementById('launchChatBtn');
-
-        try {
-          // Check if we have a token
-          if (!authState.accessToken) {
-            availabilityMsg.innerHTML = '<span class="error-message">Authentication required. Please contact administrator.</span>';
-            chatHeader.textContent = '⚠️ Authentication Error';
-            return;
-          }
-
-          // Make the API call
-          const endpoint = SALESFORCE_CONFIG.instanceUrl + SALESFORCE_CONFIG.apiEndpoint;
-          console.log('Calling endpoint:', endpoint);
-
-          const response = await fetch(endpoint, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${authState.accessToken}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            }
-          });
-
-          console.log('Response status:', response.status);
-          console.log('Response headers:', response.headers);
-
-          // Handle different response statuses
-          if (response.status === 401) {
-            availabilityMsg.innerHTML = '<span class="error-message">Session expired. Please refresh the page.</span>';
-            chatHeader.textContent = '⚠️ Session Expired';
-            console.error('Unauthorized - token may be expired');
-            return;
-          }
-
-          if (response.status === 403) {
-            availabilityMsg.innerHTML = '<span class="error-message">Access denied. Insufficient permissions.</span>';
-            chatHeader.textContent = '⚠️ Access Denied';
-            return;
-          }
-
-          if (response.status === 404) {
-            availabilityMsg.innerHTML = '<span class="error-message">Service endpoint not found.</span>';
-            chatHeader.textContent = '⚠️ Service Error';
-            return;
-          }
-
-          if (response.status === 500) {
-            availabilityMsg.innerHTML = '<span class="error-message">Server error. Please try again later.</span>';
-            chatHeader.textContent = '⚠️ Server Error';
-            return;
-          }
-
-          // Get response text first
-          const responseText = await response.text();
-          console.log('Raw response:', responseText);
-
-          // Check if response is empty
-          if (!responseText || responseText.trim() === '') {
-            console.error('Empty response from server');
-            availabilityMsg.innerHTML = '<span class="error-message">No data received from server.</span>';
-            chatHeader.textContent = '⚠️ No Data';
-            return;
-          }
-
-          // Try to parse JSON
-          let data;
-          try {
-            data = JSON.parse(responseText);
-            console.log('Parsed data:', data);
-          } catch (parseError) {
-            console.error('JSON parse error:', parseError);
-            console.error('Response was:', responseText);
-            availabilityMsg.innerHTML = '<span class="error-message">Invalid response format from server.</span>';
-            chatHeader.textContent = '⚠️ Data Error';
-            return;
-          }
-
-          // Process the successful response
-          if (data) {
-            window.isWithinBH = data.isWithinBH;
-            window.availability = data.Availability;
-            window.numberOfAgents = data.numberofAgent || 0;
-
-            console.log('Agents available:', window.numberOfAgents);
-            console.log('Within business hours:', window.isWithinBH);
-
-            // Update UI based on availability
-            if (window.numberOfAgents > 0 && window.isWithinBH) {
-              launchBtn.style.display = 'block';
-              availabilityMsg.innerHTML = `<span class="success-message">✓ ${window.numberOfAgents} agent(s) available</span>`;
-              chatHeader.textContent = '💬 Chat Available';
-            } else if (!window.isWithinBH) {
-              launchBtn.style.display = 'none';
-              availabilityMsg.innerHTML = '<span>We\'re currently outside business hours. Please check back later.</span>';
-              chatHeader.textContent = '🕐 Outside Business Hours';
-            } else {
-              launchBtn.style.display = 'none';
-              availabilityMsg.innerHTML = '<span>All agents are currently busy. Please try again shortly.</span>';
-              chatHeader.textContent = '💬 All Agents Busy';
-            }
-          } else {
-            availabilityMsg.innerHTML = '<span class="error-message">Unexpected response format.</span>';
-            chatHeader.textContent = '⚠️ Error';
-          }
-
-        } catch (error) {
-          console.error('Error querying Salesforce:', error);
-          availabilityMsg.innerHTML = `<span class="error-message">Connection error: ${error.message}</span>`;
-          chatHeader.textContent = '⚠️ Connection Error';
-        }
-      }
-
-      // Initialize on page load
-      window.onload = function() {
-        console.log('Page loaded, initializing...');
-        initializeAuth();
-        querySalesforceAccount();
-
-        // Optional: Poll for availability updates every 30 seconds
-        setInterval(querySalesforceAccount, 30000);
-      };
-
-    })();
+      });
+    });
   </script>
 </apex:page>
