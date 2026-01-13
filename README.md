@@ -151,7 +151,7 @@ async function querySalesforceAccount() {
     const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
-        'Authorization': 'Bearer 00D9O000005Id3K!AQEAQGeVMJgAdrQISYVPsBdUMici2fGXox61m5Zab5_uXuksko1UwcQoIUWWP2LA0MD1ZrKWSV.7n3DQ6aNyPGm8HKN5ZSVO',
+        'Authorization': 'Bearer 00D9O000005Id3K!AQEAQDXZUAC6xvom_ih3IAnl1TSk7.pcUsBRIDH5_HTZ6ZMNiFHASqlaw.RfG4LVQclGRwHas_9ku_x2CqWshyLC.3Qj9XPw',
         'Content-Type': 'application/json'
       }
     });
