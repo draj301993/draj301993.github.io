@@ -1,4 +1,7 @@
-<apex:page controller="ChatFlowController" > 
+<apex:page controller="ChatFlowController"
+           showHeader="false"
+           sidebar="false"
+           standardStylesheets="false">
 
   <style>
     #chat-widget {
@@ -34,7 +37,6 @@
       line-height: 1.6;
       text-align: left;
       background: #fff;
-      border-radius: 0 0 16px 16px;
       color: #222;
     }
 
@@ -84,9 +86,6 @@
       border-radius: 12px;
       cursor: pointer;
       display: none;
-      width: auto;
-      text-align: center;
-      transition: all 0.3s ease-in-out;
       position: fixed;
       bottom: 20px;
       right: 20px;
@@ -96,21 +95,27 @@
     #launchChatBtn:hover {
       background: rgb(110, 175, 33);
       transform: translateY(-2px);
-      box-shadow: 0 6px 14px rgba(0,0,0,0.3);
     }
   </style>
 
+  <!-- CHAT CARD -->
   <div id="chat-widget">
-    <div id="chat-header" class="chat-header">💬 Checking availability...</div>
+    <div id="chat-header" class="chat-header">
+      💬 Checking availability...
+    </div>
     <p id="availabilityMessage">Please wait...</p>
   </div>
 
-  <button id="launchChatBtn" onclick="document.dispatchEvent(new Event('launchMIAWChatEvent'))">
+  <!-- CUSTOM LAUNCH BUTTON -->
+  <button id="launchChatBtn"
+          onclick="document.dispatchEvent(new Event('launchMIAWChatEvent'))">
     Chat with a Specialist
   </button>
 
+  <!-- MIAW ROOT -->
   <div id="embedded-messaging-root"></div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- EMBEDDED MESSAGING INIT -->
   <script type="text/javascript">
     function initEmbeddedMessaging() {
       try {
@@ -122,155 +127,95 @@
           { scrt2URL: 'https://bayeragmiidas--test.sandbox.my.salesforce-scrt.com' }
         );
       } catch (err) {
-        console.error('Error loading Embedded Messaging: ', err);
+        console.error('Embedded Messaging init error:', err);
       }
     }
   </script>
 
-  <script type="text/javascript" 
-    src="https://bayeragmiidas--test.sandbox.my.site.com/ESWMIDASUSCHATWEB1736761433673/assets/js/bootstrap.min.js" 
+  <script type="text/javascript"
+    src="https://bayeragmiidas--test.sandbox.my.site.com/ESWMIDASUSCHATWEB1736761433673/assets/js/bootstrap.min.js"
     onload="initEmbeddedMessaging()">
   </script>
 
+  <!-- AVAILABILITY LOGIC -->
   <script>
-     window.isWithinBH=null;  
-    
-    window.availability=null;
-        window.numberOfAgents=null;
+    window.isWithinBH = null;
+    window.availability = null;
+    window.numberOfAgents = null;
 
-   //New Script Change start
-console.log('1');
-async function querySalesforceAccount() {
-    var msg = document.getElementById('availabilityMessage');
-      var btn = document.getElementById('launchChatBtn');
-      var header = document.getElementById('chat-header');
-      var card = document.getElementById('chat-widget');
-  const endpoint = 'https://bayeragmiidas--test.sandbox.my.salesforce.com/services/apexrest/CycleExample';
-  console.log('2');
-  try {
-    const response = await fetch(endpoint, {
-      method: 'GET',
-      headers: {
-        'Authorization': 'Bearer 00D9O000005Id3K!AQEAQN_tXshfazQoXXl5pUxggYqVwiO54mcR35soREHrOdUoV1TGtxYP7mKfyEFmXcP4wBDgEvF8KwtyQDjPlLcjjp4ad4rO',
-        'Content-Type': 'application/json'
+    async function querySalesforceAccount() {
+
+      const msg = document.getElementById('availabilityMessage');
+      const btn = document.getElementById('launchChatBtn');
+      const header = document.getElementById('chat-header');
+      const card = document.getElementById('chat-widget');
+
+      try {
+        const response = await fetch(
+          '/services/apexrest/CycleExample',
+          { method: 'GET' }
+        );
+
+        if (!response.ok) {
+          throw new Error('Apex REST error');
+        }
+
+        const obj = await response.json();
+
+        window.isWithinBH = obj.isWithinBH;
+        window.availability = obj.Availability;
+        window.numberOfAgents = obj.numberofAgent;
+
+        if (window.numberOfAgents > 0 && window.isWithinBH) {
+          header.style.display = "none";
+          card.style.display = "none";
+          btn.style.display = "block";
+        } else {
+          card.style.display = "block";
+          btn.style.display = "none";
+          header.classList.add("offline");
+
+          if (!window.isWithinBH) {
+            msg.innerHTML =
+              "<span class='offline-label'>🕒 Outside Business Hours</span>" +
+              "<div>Hello, our specialists are currently unavailable.<br/>" +
+              "<span class='chat-hours'>Monday – Friday<br/>8:30 AM – 8:00 PM EST</span>" +
+              "Please submit your question:<br/>" +
+              "<a class='submit-link-btn' href='https://askmed.bayer.com/submit-question' target='_blank'>Submit Question</a></div>";
+          } else {
+            msg.innerHTML =
+              "<span class='offline-label'>💬 Agents are Offline</span>" +
+              "<div>Please try again later or submit your question:<br/>" +
+              "<a class='submit-link-btn' href='https://askmed.bayer.com/submit-question' target='_blank'>Submit Question</a></div>";
+          }
+        }
+
+      } catch (e) {
+        console.error(e);
+        header.innerText = "⚠️ Error";
+        msg.innerText = "There was a problem checking availability.";
+        btn.style.display = "none";
       }
-    });
-    console.log('3');
-    if (!response.ok) {
-      throw new Error('HTTP errorrrrrrr! status:');
     }
-    
-    const data = await response.json();
-   console.log('Query Result:', data);
-   if(data!=null){
-       console.log('Chgandan');
-     const obj = JSON.parse(data);
-     window.isWithinBH = obj.isWithinBH;  // true
-    console.log('isWithinBH:', window.isWithinBH); // true
-    
-    // Other values
-    window.availability = obj.Availability;// "No Agents are Available!Please try again later"
-     console.log('avalailability:', window.availability);
-    window.numberOfAgents = obj.numberofAgent; //
-          console.log('numberOfAgents:', window.numberOfAgents);
-     console.log(typeof numberOfAgents); 
 
-// Main Code Start
+    querySalesforceAccount();
 
-
-              if (window.numberOfAgents> 0 && window.isWithinBH) {
-                header.style.display = "none";
-                card.style.display = "none"; 
-                msg.innerText = "";
-                msg.classList.remove("offline");
-                btn.style.display = 'block';
-              } else {
-                card.style.display = "block";
-                header.classList.add("offline");
-
-                if (!isWithinBH) {
-                  msg.innerHTML = "<span class='offline-label'>🕒 Outside Business Hours</span>" +
-                                  "<div>Hello, our specialists are not available at the moment.<br/>" +
-                                  "Our live chat and phone hours are:<br/>" +
-                                  "<span class='chat-hours'>Monday - Friday<br/>8:30AM - 8:00PM EST</span>" +
-                                  "If you would like, you may submit your question and one of our specialists will follow up with you:<br/>" +
-                                  "<a class='submit-link-btn' href='https://askmed.bayer.com/submit-question?utm_source=LiveChat&utm_medium=Website&utm_campaign=LiveChat' target='_blank'>Submit Question</a></div>";
-                } else {
-                  msg.innerHTML = "<span class='offline-label'>💬 Agents are Offline</span>" +
-                                  "<div>I'm sorry, it looks like all agents are unavailable at this time.<br/><br/>" +
-                                  "Please try again later or submit your question and one of our specialists will follow up with you:<br/>" +
-                                  "<a class='submit-link-btn' href='https://askmed.bayer.com/submit-question?utm_source=LiveChat&utm_medium=Website&utm_campaign=LiveChat' target='_blank'>Submit Question</a></div>";
-                }
-
-                msg.classList.add("offline");
-                btn.style.display = 'none';
-              }
-
-
-     // Main code End
-
-
-
-
-
-
-
-
-     
-
-   }
-    return data;
-  } catch (error) {
-    console.error('Error querying Salesforce:', error);
-    header.innerText = "⚠️ Error";
-              msg.innerText = 'There was a problem running the availability check.';
-              msg.classList.remove("offline");
-              btn.style.display = 'none';
-  }
-}
-
-// Usage
-      querySalesforceAccount();
-
-
-
-    // new Script Change End  
-
-
-
-
-      
-
-  
+    /* MIAW EVENTS */
     window.addEventListener('onEmbeddedMessagingReady', function () {
       embeddedservice_bootstrap.settings.hideChatButtonOnLoad = true;
 
-      var msg = document.getElementById('availabilityMessage');
-      var btn = document.getElementById('launchChatBtn');
-      var header = document.getElementById('chat-header');
-      var card = document.getElementById('chat-widget');
-
-
-
-    
-
       document.addEventListener('launchMIAWChatEvent', function () {
-                embeddedservice_bootstrap.utilAPI.launchChat()
-                  .then(function () { if (card) card.classList.add('hidden'); })
-                  .catch(function (error) { if (msg) msg.innerText = 'Could not launch chat.'; });
-         
-         
+        embeddedservice_bootstrap.utilAPI.launchChat();
       });
 
-      /**
-       * Salesforce-provided event: Fires when chat window is minimized
-       */
-      window.addEventListener("onEmbeddedMessagingWindowMinimized", function() {
-        var btn = document.getElementById("launchChatBtn");
-        if (btn) {
-          btn.style.display = "none"; // Hide custom button when chat is minimized
+      window.addEventListener(
+        'onEmbeddedMessagingWindowMinimized',
+        function () {
+          const btn = document.getElementById('launchChatBtn');
+          if (btn) btn.style.display = "none";
         }
-      });
+      );
     });
   </script>
+
 </apex:page>
